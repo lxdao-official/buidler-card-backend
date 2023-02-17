@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SkillLevel {
+  JUNIOR
+  INTERMEDIATE
+  SENIOR
+}
+
+enum BuidlerOnProjectStatus {
+  PENDING
+  ACTIVE
+}
+
+model BuidlerOnProject {
+  id          Int                    @id @default(autoincrement())
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime?              @updatedAt
+  deletedAt   DateTime?
+  project     Project                @relation(fields: [projectId], references: [id])
+  projectId   Int
+  projectRole String[]
+  startedAt   DateTime?
+  endedAt     DateTime?
+  buidler     Buidler?               @relation(fields: [buidlerId], references: [id])
+  buidlerId   Int?
+  status      BuidlerOnProjectStatus @default(PENDING)
+}
+
+enum BuidlerStatus {
+  // committee creates the buidler, haven't minted SBT
+  PENDING
+  READYTOMINT
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+model Buidler {
+  id            Int                @id @default(autoincrement())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime?          @updatedAt
+  deletedAt     DateTime?
+  name          String?
+  description   String?
+  image         String?
+  avatar        String?
+  role          String[]
+  address       String?            @unique
+  status        BuidlerStatus      @default(PENDING)
+  skills        Json?
+  interests     String[]
+  contacts      Json?
+  projects      BuidlerOnProject[]
+  buddies       Buidler[]          @relation("Buidler")
+  buddyRelation Buidler[]          @relation("Buidler")
+  nonce         String?
+  ipfsURI       String?
+  lxPoints      LXPoint[]
+  privateContacts Json?
+}
+
+model LXPoint {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+  reason    String?
+  value     Int
+  operator  String    @default("+")
+  Buidler   Buidler?  @relation(fields: [buidlerId], references: [id])
+  buidlerId Int?
+  type      String
+  name      String
+  address   String
+}
+
+enum ProjectStatus {
+  LAUNCHED
+  WIP
+}
+
+model Project {
+  id                Int                @id @default(autoincrement())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime?          @updatedAt
+  deletedAt         DateTime?
+  number            String             @unique
+  name              String
+  description       String?
+  banner            String?
+  logo              String?
+  logoLarge         String?
+  status            ProjectStatus?
+  tags              String[]
+  launchDate        DateTime?
+  links             Json?
+  buidlersOnProject BuidlerOnProject[]
+  isAbleToJoin      Boolean?
+}

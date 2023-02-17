@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+  dbpostgres:
+    image: postgres:12
+    restart: always
+    environment:
+      - POSTGRES_USER=lxdao
+      - POSTGRES_PASSWORD=lxdao
+      - POSTGRES_DB=lxdao
+    ports:
+      - 5331:5432
+    volumes:
+      - dbpostgresql:/var/lib/postgresql/data
+
+volumes:
+  dbpostgresql:
